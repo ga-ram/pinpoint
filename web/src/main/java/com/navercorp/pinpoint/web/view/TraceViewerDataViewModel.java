@@ -16,17 +16,11 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
-import com.navercorp.pinpoint.web.config.LogConfiguration;
-import com.navercorp.pinpoint.web.vo.Trace;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.util.hash.Hash;
 
 import java.util.*;
-
 
 public class TraceViewerDataViewModel {
     private final int START_TIME_INDEX = 0;

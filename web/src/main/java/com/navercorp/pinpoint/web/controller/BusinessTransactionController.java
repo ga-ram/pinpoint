@@ -52,7 +52,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -131,7 +137,8 @@ public class BusinessTransactionController {
      */
     @RequestMapping(value = "/transactionTimelineInfo", method = RequestMethod.GET)
     @ResponseBody
-    public TransactionTimelineInfoViewModel transactionTimelineInfo(@RequestParam("traceId") String traceId,
+    public TransactionTimelineInfoViewModel transactionTimelineInfo(HttpServletRequest request,
+                                                                    @RequestParam("traceId") String traceId,
                                                                     @RequestParam(value = "focusTimestamp", required = false, defaultValue = DEFAULT_FOCUS_TIMESTAMP) long focusTimestamp,
                                                                     @RequestParam(value = "agentId", required = false) String agentId,
                                                                     @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPANID) long spanId) {
@@ -146,33 +153,22 @@ public class BusinessTransactionController {
         final CallTreeIterator callTreeIterator = spanResult.getCallTree();
 
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
-        TransactionTimelineInfoViewModel result = new TransactionTimelineInfoViewModel(transactionId, spanId, recordSet, logConfiguration);
-        return result;
-    }
 
-    @RequestMapping(value = "/transactionInfoV2", method = RequestMethod.GET)
-    @ResponseBody
-    public TransactionInfoViewModel transactionInfoV2(@RequestParam("traceId") String traceIdParam,
-                                                      @RequestParam(value = "focusTimestamp", required = false, defaultValue = DEFAULT_FOCUS_TIMESTAMP) long focusTimestamp,
-                                                      @RequestParam(value = "agentId", required = false) String agentId,
-                                                      @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPANID) long spanId,
-                                                      @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
-        logger.debug("GET /transactionInfo params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, v={}}",
-                traceIdParam, focusTimestamp, agentId, spanId, viewVersion);
-        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceIdParam);
-        final ColumnGetCount columnGetCount = ColumnGetCountFactory.create(callstackSelectSpansLimit);
+        String traceViewerDataURL = null;
+        try {
+            traceViewerDataURL = ServletUriComponentsBuilder.fromRequestUri(request)
+                    .replacePath("traceViewerData.pinpoint")
+                    .queryParam("traceId", URLEncoder.encode(traceId,"UTF-8"))
+                    .queryParam("focusTimestamp", focusTimestamp)
+                    .queryParam("agentId", URLEncoder.encode(agentId,"UTF-8"))
+                    .queryParam("spanId", spanId)
+                    .build()
+                    .toUriString();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
 
-        Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
-        // select spans
-        final SpanResult spanResult = this.spanService.selectSpan(transactionId, spanMatchFilter);
-        final CallTreeIterator callTreeIterator = spanResult.getCallTree();
-
-        // application map
-        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(transactionId, viewVersion, columnGetCount).setUseStatisticsServerInstanceList(true).build();
-        final ApplicationMap map = filteredMapService.selectApplicationMap(option);
-
-        final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
-        final TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logConfiguration);
+        TransactionTimelineInfoViewModel result = new TransactionTimelineInfoViewModel(transactionId, spanId, recordSet, traceViewerDataURL, logConfiguration);
         return result;
     }
 
@@ -185,15 +181,16 @@ public class BusinessTransactionController {
         logger.debug("GET /traceViewerData params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, v={}}", traceIdParam, focusTimestamp, agentId, spanId);
 
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceIdParam);
-
         final ColumnGetCount columnGetCount = ColumnGetCountFactory.create(callstackSelectSpansLimit);
 
         // select spans
-        final CallTreeIterator callTreeIterator = this.spanService.selectSpan(transactionId, focusTimestamp, columnGetCount).getCallTree();
+        Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
+        final SpanResult spanResult = this.spanService.selectSpan(transactionId, spanMatchFilter, columnGetCount);
+        final CallTreeIterator callTreeIterator = spanResult.getCallTree();
 
-        RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp, agentId, spanId);
+        final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
+        final TraceViewerDataViewModel result = new TraceViewerDataViewModel(recordSet);
 
-        TraceViewerDataViewModel result = new TraceViewerDataViewModel(recordSet);
         return result;
     }
 
