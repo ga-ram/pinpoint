@@ -34,12 +34,12 @@
     "assets/rec_ring_buf.png": "sha256-IddHPrwbieCGZctKKbAHW2/1+3VQE3qXs1QwlkyoGKc=",
     "assets/rec_syscalls.png": "sha256-4ePrwW8K9bI4VLHtZU5CyE0HXuMVn+DrInWejtWtQ0c=",
     "assets/rec_vmstat.png": "sha256-NPpW3mqNqAU9gLehEMmEJa0qFEPjIWTFgFb+shQzxoc=",
-    "controller_bundle.js": "sha256-DCq4Y20SDKxtA0EOd5MtL9Gy89gQI5hCqf/Dff6vPnM=",
-    "engine_bundle.js": "sha256-KcME2MwCfcgRVZA9wrPYlnnDjAH11e8cp78VEAdA+vU=",
-    "frontend_bundle.js": "sha256-AAdedU6WiYzjA71og2zHfcqdx+d8Xer8efHMtOPtrck=",
-    "perfetto.css": "sha256-xXKecaTFduOsvYYqZbRTqOn87q3kxXH/DyOn/leAyeI=",
+    "controller_bundle.js": "sha256-09GNUZBhDs3jnoV2gFj9hDkFpMa4PorNgfgjRoad0rA=",
+    "engine_bundle.js": "sha256-iZsMlSQ3WRhx3h0i+ZxighEQNtLnsSBdZeC+nWOTUIU=",
+    "frontend_bundle.js": "sha256-KlZTgZF7r7lPkTtAE5OEM+p3dG4FfTEnNdL792JjXj8=",
+    "perfetto.css": "sha256-4cYtfoGIF3qmWliTBZjZe0VB/rXY9num3Y9H2uHh15g=",
     "trace_processor.wasm": "sha256-SzjQpapUKAeImwO3r3UtKNGzk/f4n+bTQ+XcKElsMnE=",
     "trace_to_text.wasm": "sha256-TovfxTqdu9FE3f3+1y9ZqZTixYehOYbQGkje2TzHYTY=",
-    "traceconv_bundle.js": "sha256-ZnKWJTx4ec9LO7z70d4wBBwX1+bK0Iqxwp2rMMYCex4="
+    "traceconv_bundle.js": "sha256-x7cgFhlXuDTKJY8LEEO3kJotoVQDOO/nVUPMtB3ivPI="
   }
 }
