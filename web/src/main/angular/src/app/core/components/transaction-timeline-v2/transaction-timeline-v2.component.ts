@@ -12,7 +12,8 @@ export class TransactionTimelineV2Component implements OnInit {
     constructor() {}
     ngOnInit() {
         const script = document.createElement('script');
-        script.src = "../../../assets/lib/perfetto_modified/frontend_bundle.js";
+        // ref: web/src/main/angular/angular.json
+        script.src = "../../../assets/perfetto-ui/frontend_bundle.js";
         document.getElementById('timeline_main').append(script);
     }
 

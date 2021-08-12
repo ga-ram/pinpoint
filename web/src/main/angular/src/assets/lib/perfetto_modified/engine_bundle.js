@@ -18,8 +18,8 @@ function commonjsRequire () {
 var perfetto_version = createCommonjsModule(function (module, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SCM_REVISION = exports.VERSION = void 0;
-exports.VERSION = "v17.0.92";
-exports.SCM_REVISION = "3ac316a99f00a44a7cebecea45dc08b3a9fc08fa";
+exports.VERSION = "v18.0.6";
+exports.SCM_REVISION = "b846a827ab0b47d0299bc3776d1fb5c067c50d94";
 
 });
 
