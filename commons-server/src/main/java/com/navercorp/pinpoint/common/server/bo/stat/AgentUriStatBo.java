@@ -24,14 +24,21 @@ import java.util.List;
  * @author Taejin Koo
  */
 public class AgentUriStatBo implements AgentStatDataPoint {
-
+    private String serviceName;
+    private String applicationName;
     private String agentId;
     private long startTimestamp;
-
     private long timestamp;
     private byte bucketVersion;
-
     private List<EachUriStatBo> eachUriStatBoList = new ArrayList<>();
+
+    public String getServiceName() { return serviceName; }
+
+    public void setServiceName(String serviceName) { this.serviceName = serviceName; }
+
+    public String getApplicationName() { return applicationName; }
+
+    public void setApplicationName(String applicationName) { this.applicationName = applicationName; }
 
     @Override
     public String getAgentId() {
@@ -103,6 +110,8 @@ public class AgentUriStatBo implements AgentStatDataPoint {
 
         AgentUriStatBo that = (AgentUriStatBo) o;
 
+        if (serviceName != null? !serviceName.equals(that.serviceName) : that.serviceName != null) return false;
+        if (applicationName != null? !applicationName.equals(that.applicationName) : that.applicationName != null) return false;
         if (startTimestamp != that.startTimestamp) return false;
         if (timestamp != that.timestamp) return false;
         if (bucketVersion != that.bucketVersion) return false;
@@ -112,7 +121,9 @@ public class AgentUriStatBo implements AgentStatDataPoint {
 
     @Override
     public int hashCode() {
-        int result = agentId != null ? agentId.hashCode() : 0;
+        int result = serviceName != null ? serviceName.hashCode() : 0;
+        result = 31 * result + (applicationName != null ? applicationName.hashCode() : 0);
+        result = 31 * result + (agentId != null ? agentId.hashCode() : 0);
         result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         result = 31 * result + (int) bucketVersion;
@@ -123,7 +134,9 @@ public class AgentUriStatBo implements AgentStatDataPoint {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AgentUriStatBo{");
-        sb.append("agentId='").append(agentId).append('\'');
+        sb.append("serviceName='").append(serviceName).append('\'');
+        sb.append(", applicationName=").append(applicationName);
+        sb.append(", agentId='").append(agentId).append('\'');
         sb.append(", startTimestamp=").append(startTimestamp);
         sb.append(", timestamp=").append(timestamp);
         sb.append(", bucketVersion=").append(bucketVersion);

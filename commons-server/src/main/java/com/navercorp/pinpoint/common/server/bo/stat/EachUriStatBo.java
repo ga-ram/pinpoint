@@ -21,44 +21,27 @@ package com.navercorp.pinpoint.common.server.bo.stat;
  */
 public class EachUriStatBo implements AgentStatDataPoint {
 
-    private String agentId;
-    private long startTimestamp;
-
-    private long timestamp;
-
     private String uri;
     private UriStatHistogram totalHistogram = new UriStatHistogram();
     private UriStatHistogram failedHistogram = null;
 
     @Override
-    public String getAgentId() {
-        return agentId;
-    }
+    public String getAgentId() { return null; }
 
     @Override
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
+    public void setAgentId(String agentId) {}
 
     @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
+    public long getStartTimestamp() { return 0; }
 
     @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
+    public void setStartTimestamp(long startTimestamp) {}
 
     @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
+    public long getTimestamp() { return 0; }
 
     @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
+    public void setTimestamp(long timestamp) {}
 
     @Override
     public AgentStatType getAgentStatType() {
@@ -96,9 +79,6 @@ public class EachUriStatBo implements AgentStatDataPoint {
 
         EachUriStatBo that = (EachUriStatBo) o;
 
-        if (startTimestamp != that.startTimestamp) return false;
-        if (timestamp != that.timestamp) return false;
-        if (agentId != null ? !agentId.equals(that.agentId) : that.agentId != null) return false;
         if (uri != null ? !uri.equals(that.uri) : that.uri != null) return false;
         if (totalHistogram != null ? !totalHistogram.equals(that.totalHistogram) : that.totalHistogram != null) return false;
         return failedHistogram != null ? failedHistogram.equals(that.failedHistogram) : that.failedHistogram == null;
@@ -106,10 +86,7 @@ public class EachUriStatBo implements AgentStatDataPoint {
 
     @Override
     public int hashCode() {
-        int result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
-        result = 31 * result + (uri != null ? uri.hashCode() : 0);
+        int result = uri != null ? uri.hashCode() : 0;
         result = 31 * result + (totalHistogram != null ? totalHistogram.hashCode() : 0);
         result = 31 * result + (failedHistogram != null ? failedHistogram.hashCode() : 0);
         return result;
@@ -118,9 +95,6 @@ public class EachUriStatBo implements AgentStatDataPoint {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("EachUriStatBo{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", startTimestamp=").append(startTimestamp);
-        sb.append(", timestamp=").append(timestamp);
         sb.append(", uri='").append(uri).append('\'');
         sb.append(", totalHistogram=").append(totalHistogram);
         sb.append(", failedHistogram=").append(failedHistogram);

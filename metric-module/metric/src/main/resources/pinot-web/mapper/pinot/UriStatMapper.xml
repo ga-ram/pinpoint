@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.navercorp.pinpoint.metric.web.dao.pinot.PinotUriStatDao">
+    <resultMap id="uriStatResultMap" type="UriStat">
+        <constructor>
+            <arg column="timestamp" javaType="_long"/>
+            <arg column="totalHistogram0" javaType="_double"/>
+            <arg column="totalHistogram1" javaType="_double"/>
+            <arg column="totalHistogram2" javaType="_double"/>
+            <arg column="totalHistogram3" javaType="_double"/>
+            <arg column="totalHistogram4" javaType="_double"/>
+            <arg column="totalHistogram5" javaType="_double"/>
+            <arg column="totalHistogram6" javaType="_double"/>
+            <arg column="totalHistogram7" javaType="_double"/>
+            <arg column="failureHistogram0" javaType="_double"/>
+            <arg column="failureHistogram1" javaType="_double"/>
+            <arg column="failureHistogram2" javaType="_double"/>
+            <arg column="failureHistogram3" javaType="_double"/>
+            <arg column="failureHistogram4" javaType="_double"/>
+            <arg column="failureHistogram5" javaType="_double"/>
+            <arg column="failureHistogram6" javaType="_double"/>
+            <arg column="failureHistogram7" javaType="_double"/>
+            <arg column="version" javaType="_int"/>
+        </constructor>
+    </resultMap>
+
+    <resultMap id="uriStatSummary" type="UriStatSummary">
+        <constructor>
+            <arg column="uri" javaType="string"/>
+            <arg column="totalCount" javaType="_double"/>
+            <arg column="failureCount" javaType="_double"/>
+            <arg column="maxLatencyMs" javaType="_double"/>
+            <arg column="totalTimeMs" javaType="_double"/>
+            <arg column="version" javaType="_int"/>
+        </constructor>
+    </resultMap>
+
+    <select id="top50UriStatApplication" resultMap="uriStatSummary" parameterType="UriStatQueryParameter">
+        SELECT
+            uri,
+            sum("count") as totalCount,
+            max(maxLatencyMs) as maxLatencyMs,
+            sum(totalTimeMs) as totalTimeMs,
+            sum(failureHistogram0, failureHistogram1, failureHistogram2, failureHistogram3, failureHistogram4, failureHistogram5, failureHistogram6, failureHistogram7) as failureCount,
+            version
+        FROM uriStat
+        WHERE applicationName = #{applicationName}
+          AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        GROUP BY uri, version
+        ORDER BY totalCount desc
+        LIMIT 50
+    </select>
+
+    <select id="top50UriStatAgent" resultMap="uriStatSummary" parameterType="UriStatQueryParameter">
+        SELECT
+            uri,
+            sum("count") as totalCount,
+            max(maxLatencyMs) as maxLatencyMs,
+            sum(totalTimeMs) as totalTimeMs,
+            sum(failureHistogram0, failureHistogram1, failureHistogram2, failureHistogram3, failureHistogram4, failureHistogram5, failureHistogram6, failureHistogram7) as failureCount,
+            version
+        FROM uriStat
+        WHERE applicationName = #{applicationName}
+          AND agentId = #{agentId}
+          AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        GROUP BY uri, version
+        ORDER BY totalCount desc
+        LIMIT 50
+    </select>
+
+    <select id="selectUriStatApplication" resultMap="uriStatResultMap" parameterType="UriStatQueryParameter">
+        SELECT
+            DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
+            sum(totalHistogram0) as totalHistogram0,
+            sum(totalHistogram1) as totalHistogram1,
+            sum(totalHistogram2) as totalHistogram2,
+            sum(totalHistogram3) as totalHistogram3,
+            sum(totalHistogram4) as totalHistogram4,
+            sum(totalHistogram5) as totalHistogram5,
+            sum(totalHistogram6) as totalHistogram6,
+            sum(totalHistogram7) as totalHistogram7,
+            sum(failureHistogram0) as failureHistogram0,
+            sum(failureHistogram1) as failureHistogram1,
+            sum(failureHistogram2) as failureHistogram2,
+            sum(failureHistogram3) as failureHistogram3,
+            sum(failureHistogram4) as failureHistogram4,
+            sum(failureHistogram5) as failureHistogram5,
+            sum(failureHistogram6) as failureHistogram6,
+            sum(failureHistogram7) as failureHistogram7,
+            version
+        FROM uriStat
+        WHERE applicationName = #{applicationName}
+            AND uri = #{uri}
+            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        GROUP BY "timestamp", version
+        ORDER BY "timestamp" asc
+        LIMIT ${limit}
+    </select>
+    <select id="selectUriStatAgentId" resultMap="uriStatResultMap" parameterType="UriStatQueryParameter">
+        SELECT
+            DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
+            sum(totalHistogram0) as totalHistogram0,
+            sum(totalHistogram1) as totalHistogram1,
+            sum(totalHistogram2) as totalHistogram2,
+            sum(totalHistogram3) as totalHistogram3,
+            sum(totalHistogram4) as totalHistogram4,
+            sum(totalHistogram5) as totalHistogram5,
+            sum(totalHistogram6) as totalHistogram6,
+            sum(totalHistogram7) as totalHistogram7,
+            sum(failureHistogram0) as failureHistogram0,
+            sum(failureHistogram1) as failureHistogram1,
+            sum(failureHistogram2) as failureHistogram2,
+            sum(failureHistogram3) as failureHistogram3,
+            sum(failureHistogram4) as failureHistogram4,
+            sum(failureHistogram5) as failureHistogram5,
+            sum(failureHistogram6) as failureHistogram6,
+            sum(failureHistogram7) as failureHistogram7,
+            version
+        FROM uriStat
+        WHERE applicationName = #{applicationName}
+            AND agentId = #{agentId}
+            AND uri = #{uri}
+            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        GROUP BY "timestamp", version
+        ORDER BY "timestamp" asc
+        LIMIT ${limit}
+    </select>
+</mapper>

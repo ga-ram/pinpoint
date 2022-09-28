@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricChart;
 import com.navercorp.pinpoint.metric.web.service.SystemMetricDataService;
 import com.navercorp.pinpoint.metric.web.service.SystemMetricHostInfoService;
 import com.navercorp.pinpoint.metric.web.service.YMLSystemMetricBasicGroupManager;
-import com.navercorp.pinpoint.metric.web.util.QueryParameter;
+import com.navercorp.pinpoint.metric.web.util.MetricsQueryParameter;
 import com.navercorp.pinpoint.metric.web.util.Range;
 import com.navercorp.pinpoint.metric.web.util.TagParser;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
@@ -71,14 +71,14 @@ public class SystemMetricController {
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
 
-        QueryParameter.Builder builder = new QueryParameter.Builder();
+        MetricsQueryParameter.Builder builder = new MetricsQueryParameter.Builder();
         builder.setHostGroupName(hostGroupName);
         builder.setHostName(hostName);
         builder.setMetricName(metricName);
         builder.setFieldName(fieldName);
         builder.setTagList(tagParser.parseTags(tags));
         builder.setRange(Range.newRange(from, to));
-        QueryParameter queryParameter = builder.build();
+        MetricsQueryParameter queryParameter = builder.build();
 
         return systemMetricDataService.getSystemMetricBoList(queryParameter);
     }
@@ -95,7 +95,7 @@ public class SystemMetricController {
             @RequestParam("to") long to) {
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), DEFAULT_TIME_WINDOW_SAMPLER);
 
-        QueryParameter.Builder builder = new QueryParameter.Builder();
+        MetricsQueryParameter.Builder builder = new MetricsQueryParameter.Builder();
         builder.setHostGroupName(hostGroupName);
         builder.setHostName(hostName);
         builder.setMetricName(metricName);
@@ -103,7 +103,7 @@ public class SystemMetricController {
         builder.setTagList(tagParser.parseTags(tags));
         builder.setRange(Range.newRange(from, to));
         builder.setTimeSize((int) timeWindow.getWindowSlotSize());
-        QueryParameter queryParameter = builder.build();
+        MetricsQueryParameter queryParameter = builder.build();
 
         return systemMetricDataService.getSystemMetricChart(timeWindow, queryParameter);
     }
@@ -128,7 +128,7 @@ public class SystemMetricController {
         TimeWindowSampler sampler = new TimeWindowSlotCentricSampler(interval, 200);
         TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
 
-        QueryParameter.Builder builder = new QueryParameter.Builder();
+        MetricsQueryParameter.Builder builder = new MetricsQueryParameter.Builder();
         builder.setHostGroupName(hostGroupName);
         builder.setHostName(hostName);
         builder.setMetricName(metricName);
@@ -136,7 +136,7 @@ public class SystemMetricController {
         builder.setTagList(tagParser.parseTags(tags));
         builder.setRange(Range.newRange(from, to));
         builder.setTimePrecision(timePrecision);
-        QueryParameter queryParameter = builder.build();
+        MetricsQueryParameter queryParameter = builder.build();
 
         return systemMetricDataService.getSystemMetricChart(timeWindow, queryParameter);
     }

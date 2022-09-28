@@ -40,11 +40,14 @@ public class GrpcAgentUriStatMapper {
 
         final String agentId = agentInfo.getAgentId();
         final long startTimestamp = agentInfo.getAgentStartTime();
+        final String applicationName = agentInfo.getApplicationName();
 
         long timestamp = agentUriStat.getTimestamp();
         int bucketVersion = agentUriStat.getBucketVersion();
 
         AgentUriStatBo agentUriStatBo = new AgentUriStatBo();
+        agentUriStatBo.setServiceName("");                        // TODO: add serviceName when available
+        agentUriStatBo.setApplicationName(applicationName);
         agentUriStatBo.setAgentId(agentId);
         agentUriStatBo.setStartTimestamp(startTimestamp);
         agentUriStatBo.setTimestamp(timestamp);

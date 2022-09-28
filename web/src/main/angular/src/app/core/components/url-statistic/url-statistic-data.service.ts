@@ -18,9 +18,9 @@ export class UrlStatisticDataService {
         // TODO: Deliver real param
         return {
             params: {
-                agentId: 'FrontWAS2',
-                from: 1614044341000,
-                to: 1614045541000,
+                agentId: 'garam-agent',
+                from: 1663704252000,
+                to: 1663725852000,
                 sampleRate: 1
             }
         };

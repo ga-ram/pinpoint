@@ -1,0 +1,112 @@
+{
+  "schemaName": "urlStat",
+  "dimensionFieldSpecs": [
+    {
+      "name": "serviceName",
+      "dataType": "STRING",
+      "defaultNullValue": ""
+    },
+    {
+      "name": "applicationName",
+      "dataType": "STRING"
+    },
+    {
+      "name": "agentId",
+      "dataType": "STRING"
+    },
+    {
+      "name": "uri",
+      "dataType": "STRING"
+    },
+    {
+      "name": "version",
+      "dataType": "INT"
+    }
+  ],
+  "metricFieldSpecs": [
+    {
+      "name": "count",
+      "dataType": "LONG"
+    },
+    {
+      "name": "maxLatencyMs",
+      "dataType": "LONG"
+    },
+    {
+      "name": "totalTimeMs",
+      "dataType": "LONG"
+    },
+    {
+    "name": "totalHistogram0",
+    "dataType": "INT"
+    },
+    {
+    "name": "totalHistogram1",
+    "dataType": "INT"
+    },
+    {
+    "name": "totalHistogram2",
+    "dataType": "INT"
+    },
+    {
+    "name": "totalHistogram3",
+    "dataType": "INT"
+    },
+    {
+    "name": "totalHistogram4",
+    "dataType": "INT"
+    },
+    {
+    "name": "totalHistogram5",
+    "dataType": "INT"
+    },
+    {
+    "name": "totalHistogram6",
+    "dataType": "INT"
+    },
+    {
+    "name": "totalHistogram7",
+    "dataType": "INT"
+    },
+    {
+    "name": "failureHistogram0",
+    "dataType": "INT"
+    },
+    {
+    "name": "failureHistogram1",
+    "dataType": "INT"
+    },
+    {
+    "name": "failureHistogram2",
+    "dataType": "INT"
+    },
+    {
+    "name": "failureHistogram3",
+    "dataType": "INT"
+    },
+    {
+    "name": "failureHistogram4",
+    "dataType": "INT"
+    },
+    {
+    "name": "failureHistogram5",
+    "dataType": "INT"
+    },
+    {
+    "name": "failureHistogram6",
+    "dataType": "INT"
+    },
+    {
+    "name": "failureHistogram7",
+    "dataType": "INT"
+    }
+  ],
+  "dateTimeFieldSpecs": [
+    {
+      "name": "timestamp",
+      "dataType": "LONG",
+      "format": "1:MILLISECONDS:EPOCH",
+      "granularity": "1:MILLISECONDS"
+    }
+  ]
+}

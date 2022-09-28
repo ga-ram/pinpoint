@@ -1,0 +1,33 @@
+{
+  "tableName": "uriStat",
+  "tableType": "REALTIME",
+  "segmentsConfig": {
+    "timeColumnName": "timestamp",
+    "timeType": "MILLISECONDS",
+    "schemaName": "uriStat",
+    "replicasPerPartition": "1",
+    "retentionTimeUnit": "DAYS",
+    "retentionTimeValue": "21"
+  },
+  "tenants": {},
+  "tableIndexConfig": {
+    "sortedColumn": ["serviceName", "applicationName", "agentId", "uri"],
+    "invertedIndexColumns": ["totalHistogram0", "totalHistogram1", "totalHistogram2", "totalHistogram3", "totalHistogram4", "totalHistogram5", "totalHistogram6", "totalHistogram7", "failureHistogram0", "failureHistogram1", "failureHistogram2", "failureHistogram3", "failureHistogram4", "failureHistogram5", "failureHistogram6", "failureHistogram7"],
+    "loadMode": "MMAP",
+    "nullHandlingEnabled": true,
+    "streamConfigs": {
+      "streamType": "kafka",
+      "stream.kafka.consumer.type": "lowlevel",
+      "stream.kafka.topic.name": "url-stat",
+      "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.inputformat.json.StreamJSONMessageDecoder",
+      "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
+      "stream.kafka.broker.list": "localhost:19092",
+      "realtime.segment.flush.threshold.rows": "0",
+      "realtime.segment.flush.threshold.time": "24h",
+      "realtime.segment.flush.threshold.segment.size": "64M",
+      "stream.kafka.consumer.prop.auto.offset.reset": "smallest"
+    }
+  },
+  "metadata": {
+  }
+}

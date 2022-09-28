@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.web.view;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.web.view.timeseries.InspectorView;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;

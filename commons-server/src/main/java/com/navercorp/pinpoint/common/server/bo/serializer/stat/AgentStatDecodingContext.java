@@ -21,11 +21,23 @@ package com.navercorp.pinpoint.common.server.bo.serializer.stat;
  */
 public class AgentStatDecodingContext {
 
+    private String serviceName;
+
+    private String applicationName;
+
     private String agentId;
 
     private long baseTimestamp;
 
     private long timestampDelta;
+
+    public String getServiceName() { return serviceName; }
+
+    public void setServiceName(String serviceName) { this.serviceName = serviceName; }
+
+    public String getApplicationName() { return applicationName; }
+
+    public void setApplicationName(String applicationName) { this.applicationName = applicationName; }
 
     public String getAgentId() {
         return agentId;
@@ -50,4 +62,5 @@ public class AgentStatDecodingContext {
     public void setTimestampDelta(long timestampDelta) {
         this.timestampDelta = timestampDelta;
     }
+
 }

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.service;
 import com.navercorp.pinpoint.collector.dao.hbase.HbaseAgentUriStatDao;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -26,6 +27,7 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
+@ConditionalOnMissingBean(value = AgentUriStatService.class, ignored = HBaseAgentUriStatService.class)
 @Service("hBaseAgentUriStatService")
 public class HBaseAgentUriStatService implements AgentUriStatService {
 

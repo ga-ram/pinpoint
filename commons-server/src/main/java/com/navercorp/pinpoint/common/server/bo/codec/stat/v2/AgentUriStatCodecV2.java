@@ -79,6 +79,12 @@ public class AgentUriStatCodecV2 implements AgentStatCodec<AgentUriStatBo> {
     public List<AgentUriStatBo> decodeValues(Buffer valueBuffer, AgentStatDecodingContext decodingContext) {
         AgentUriStatBo agentUriStatBo = new AgentUriStatBo();
 
+        final String serviceName = decodingContext.getServiceName();
+        agentUriStatBo.setServiceName(serviceName);
+
+        final String applicationName = decodingContext.getApplicationName();
+        agentUriStatBo.setApplicationName(applicationName);
+
         final String agentId = decodingContext.getAgentId();
         agentUriStatBo.setAgentId(agentId);
 

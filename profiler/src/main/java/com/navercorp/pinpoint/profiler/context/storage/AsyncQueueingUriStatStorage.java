@@ -77,7 +77,7 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
     private static class ExecutorListener implements AsyncQueueingExecutorListener<UriStatInfo> {
 
-        private static final int DEFAULT_COLLECT_INTERVAL = 60000; // 1minute
+        private static final int DEFAULT_COLLECT_INTERVAL = 30000; // 30s
 
         private final Object lock = new Object();
 
