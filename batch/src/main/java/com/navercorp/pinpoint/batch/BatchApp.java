@@ -50,8 +50,8 @@ import org.springframework.context.annotation.ImportResource;
         BatchAppPropertySources.class,
         WebhookModule.class,
         WebHbaseModule.class,
-
-        RestTemplateConfiguration.class
+        RestTemplateConfiguration.class,
+        UriStatAlarmConfiguration.class
 })
 public class BatchApp {
 

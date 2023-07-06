@@ -58,6 +58,9 @@ public class BatchProperties {
     @Value("${job.cleanup.inactive.agents:false}")
     private boolean enableCleanupInactiveAgents;
 
+    @Value("${job.alarm.uristat.enable:false}")
+    private boolean enableUriStatAlarmJob;
+
     private static final int DEFAULT_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS = 30;
     private static final int MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS = 7;
 
@@ -130,6 +133,10 @@ public class BatchProperties {
         return enableCleanupInactiveAgents;
     }
 
+    public boolean getEnableUriStatAlarmJob() {
+        return enableUriStatAlarmJob;
+    }
+
     public int getCleanupInactiveAgentsDurationDays() {
         return cleanupInactiveAgentsDurationDays;
     }
@@ -155,6 +162,7 @@ public class BatchProperties {
                 ", enableCleanupInactiveAgents=" + enableCleanupInactiveAgents +
                 ", cleanupInactiveAgentsDurationDays=" + cleanupInactiveAgentsDurationDays +
                 ", cleanupInactiveAgentsCron='" + cleanupInactiveAgentsCron + '\'' +
+                ", enableUriStatAlarmJob=" + enableUriStatAlarmJob +
                 '}';
     }
 }
