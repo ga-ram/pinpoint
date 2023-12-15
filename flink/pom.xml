@@ -232,6 +232,46 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>1.2.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>push-image-version</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>push</goal>
+                        </goals>
+                        <configuration>
+                            <imageName>galam/pinpoint-flink:${project.version}</imageName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>push-image-latest</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>push</goal>
+                        </goals>
+                        <configuration>
+                            <imageName>galam/pinpoint-flink:latest</imageName>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <imageName>galam/pinpoint-flink</imageName>
+                    <dockerDirectory>.</dockerDirectory>
+                    <imageTags>
+                        <imageTag>${project.version}</imageTag>
+                        <imageTag>latest</imageTag>
+                    </imageTags>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

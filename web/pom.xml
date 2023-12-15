@@ -422,6 +422,10 @@
                     <executable>true</executable>
                     <attach>false</attach>
                     <finalName>${pinpoint.web.executable.name}</finalName>
+                    <image>
+                        <name>galam/pinpoint-web</name>
+                        <tags>galam/pinpoint-web:${project.version},galam/pinpoint-web:latest</tags>
+                    </image>
                 </configuration>
             </plugin>
         </plugins>
