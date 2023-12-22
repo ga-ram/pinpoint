@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.flink;
 
 import com.navercorp.pinpoint.collector.config.HbaseAsyncConfiguration;
 import com.navercorp.pinpoint.common.hbase.HadoopResourceCleanerRegistry;
+import com.navercorp.pinpoint.common.hbase.HbaseTableNameProvider;
 import com.navercorp.pinpoint.common.hbase.config.DistributorConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.HbaseMultiplexerProperties;
 import com.navercorp.pinpoint.common.hbase.config.HbaseTemplateConfiguration;
@@ -27,7 +28,11 @@ import com.navercorp.pinpoint.common.server.hbase.config.HbaseClientConfiguratio
 import com.navercorp.pinpoint.flink.cache.FlinkCacheConfiguration;
 import com.navercorp.pinpoint.flink.config.FlinkExecutorConfiguration;
 import com.navercorp.pinpoint.flink.dao.hbase.ApplicationDaoConfiguration;
+import com.navercorp.pinpoint.flink.dao.hbase.DefaultStatisticsDaoInterceptor;
+import com.navercorp.pinpoint.flink.function.DefaultApplicationStatBoWindowInterceptor;
 import com.navercorp.pinpoint.flink.hbase.Hbase2HadoopResourceCleanerRegistry;
+import com.navercorp.pinpoint.flink.process.DefaultTBaseFlatMapperInterceptor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -42,8 +47,7 @@ import org.springframework.context.annotation.PropertySource;
 })
 @ImportResource({
         "classpath:applicationContext-flink.xml",
-
-        "classpath:applicationContext-flink-extend.xml",
+        "classpath:applicationContext-hbase.xml",
 })
 @Import({
         FlinkCacheConfiguration.class,
@@ -61,6 +65,8 @@ import org.springframework.context.annotation.PropertySource;
         "classpath:profiles/${pinpoint.profiles.active:local}/pinpoint-flink.properties"
 })
 public class FlinkModule {
+    @Value("${hbase.namespace:default}")
+    private String hbaseNamespace;
 
     @Bean
     public HadoopResourceCleanerRegistry hbase2HadoopResourceCleanerRegistry() {
@@ -71,5 +77,25 @@ public class FlinkModule {
     @ConfigurationProperties(prefix = "hbase.client.async")
     public HbaseMultiplexerProperties hbaseMultiplexerProperties() {
         return new HbaseMultiplexerProperties();
+    }
+
+    @Bean
+    public DefaultTBaseFlatMapperInterceptor tBaseFlatMapperInterceptor() {
+        return new DefaultTBaseFlatMapperInterceptor();
+    }
+
+    @Bean
+    public DefaultStatisticsDaoInterceptor statisticsDaoInterceptor() {
+        return new DefaultStatisticsDaoInterceptor();
+    }
+
+    @Bean
+    public DefaultApplicationStatBoWindowInterceptor applicationStatBoWindowInterceptor() {
+        return new DefaultApplicationStatBoWindowInterceptor();
+    }
+
+    @Bean
+    public HbaseTableNameProvider tableNameProvider() {
+        return new HbaseTableNameProvider(hbaseNamespace);
     }
 }

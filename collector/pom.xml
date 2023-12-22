@@ -294,6 +294,10 @@
                     <executable>true</executable>
                     <attach>false</attach>
                     <finalName>${pinpoint.collector.executable.name}</finalName>
+                    <image>
+                        <name>galam/pinpoint-collector</name>
+                        <tags>galam/pinpoint-collector:${project.version},galam/pinpoint-collector:latest</tags>
+                    </image>
                 </configuration>
             </plugin>
         </plugins>
