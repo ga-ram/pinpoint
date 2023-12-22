@@ -65,6 +65,10 @@
                     <executable>true</executable>
                     <attach>false</attach>
                     <finalName>${pinpoint.collector.executable.name}</finalName>
+                    <image>
+                        <name>galam/pinpoint-collector</name>
+                        <tags>galam/pinpoint-collector:${project.version}-metric,galam/pinpoint-collector:latest-metric</tags>
+                    </image>
                 </configuration>
             </plugin>
         </plugins>

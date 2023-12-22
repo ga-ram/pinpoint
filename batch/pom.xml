@@ -237,6 +237,10 @@
                     <executable>true</executable>
                     <attach>false</attach>
                     <finalName>${pinpoint.batch.executable.name}</finalName>
+                    <image>
+                        <name>galam/pinpoint-batch</name>
+                        <tags>galam/pinpoint-batch:${project.version},galam/pinpoint-batch:latest</tags>
+                    </image>
                 </configuration>
             </plugin>
             <!--
