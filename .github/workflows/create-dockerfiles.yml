@@ -38,22 +38,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-             
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        
       - name: Set JAVA_HOME
         run: |
           echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
           echo "JAVA_11_HOME=$JAVA_HOME_11_X64" >> $GITHUB_ENV
           echo "JAVA_17_HOME=$JAVA_HOME_17_X64" >> $GITHUB_ENV
           echo "JAVA_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
+
+      - name: Build Project
+        run: mvn install -DskipTests=true
         
-      - name: Docker Images Build
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+             
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        
+      - name: Build Docker Images
         run: |
-          mvn install -DskipTests=true
           mvn docker:build -pl agent
           mvn docker:build -pl flink
           mvn docker:build -pl hbase/hbase-docker
