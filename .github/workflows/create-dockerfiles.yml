@@ -74,10 +74,10 @@ jobs:
 
       - name: Push to Docker Hub
         run: |
-          docker push --all-tags galam/pinpoint-agent
-          docker push --all-tags galam/pinpoint-flink
-          docker push --all-tags galam/pinpoint-docker
-          docker push --all-tags galam/pinpoint-batch
-          docker push --all-tags galam/pinpoint-collector
-          docker push --all-tags galam/pinpoint-web
+          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-agent
+          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-flink
+          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-hbase
+          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-batch
+          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-collector
+          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-web
           
