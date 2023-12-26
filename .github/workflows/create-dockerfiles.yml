@@ -46,6 +46,7 @@ jobs:
         
       - name: Docker Images Build
         run: |
+          mvn install -DskipTests=true
           mvn docker:build -pl agent
           mvn docker:build -pl flink
           mvn docker:build -pl hbase/hbase-docker
