@@ -1,8 +1,7 @@
 name: Create and push dockerfiles
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch
 
 jobs:
   latest:
