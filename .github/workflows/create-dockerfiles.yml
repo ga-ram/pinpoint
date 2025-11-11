@@ -49,6 +49,12 @@ jobs:
       - name: Build Project
         run: mvn install -DskipTests=true
 
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.docker_username }}
+          password: ${{ secrets.docker_token }}
+
       - name: Build and Push All Docker Images (multi-arch Spring Boot)
         run: |
           export DOCKER_REPO=${{ secrets.docker_username }}
@@ -97,25 +103,9 @@ jobs:
               -Dspring-boot.build-image.imageName=$DOCKER_REPO/pinpoint-$MODULE:$VERSION-metric
 
             # Tag same image as latest-metric
-            docker pull $DOCKER_REPO/pinpoint-$MODULE:$VERSION-metric
-            docker tag $DOCKER_REPO/pinpoint-$MODULE:$VERSION-metric \
-                       $DOCKER_REPO/pinpoint-$MODULE:latest-metric
-            docker push $DOCKER_REPO/pinpoint-$MODULE:latest-metric
+            docker pull ${{ secrets.docker_username }}/pinpoint-$MODULE:$VERSION-metric
+            docker tag ${{ secrets.docker_username }}/pinpoint-$MODULE:$VERSION-metric \
+                       ${{ secrets.docker_username }}/pinpoint-$MODULE:latest-metric
+            docker push ${{ secrets.docker_username }}/pinpoint-$MODULE:latest-metric
           done
 
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.docker_username }}
-          password: ${{ secrets.docker_token }}
-
-      - name: Push to Docker Hub
-        run: |
-          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-agent
-          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-flink
-          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-hbase
-          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-batch
-          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-collector
-          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-web
-          
