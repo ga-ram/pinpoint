@@ -48,6 +48,46 @@ jobs:
 
       - name: Build Project
         run: mvn install -DskipTests=true
+        
+      - name: Build All Docker Images
+        run: |
+          export DOCKER_REPO=${{ secrets.docker_username }}
+          export VERSION=${GITHUB_REF#refs/tags/}
+          echo "Using version: $VERSION"
+
+          OLD_DOCKER_MODULES=("agent-module/agent" "flink" "hbase/hbase-docker")
+          SPRING_BOOT_MODULES=("collector-starter" "web-starter" "batch" "collector" "web")
+
+          build_old_docker() {
+            MODULE_PATH=$1
+            MODULE_NAME=$(basename $MODULE_PATH)
+            echo "Building old Docker module $MODULE_PATH ..."
+            mvn docker:build -pl $MODULE_PATH
+          }
+
+          build_spring_boot() {
+            MODULE=$1
+            echo "Building Spring Boot module $MODULE ..."
+            mvn -pl $MODULE spring-boot:build-image \
+              -DskipTests=true \
+              -Dspring-boot.build-image.builder=docker \
+              -Dspring-boot.build-image.platform=linux/amd64,linux/arm64 \
+              -Dspring-boot.build-image.imageName=$DOCKER_REPO/pinpoint-$MODULE:$VERSION-metric
+          }
+
+          # Build old Docker modules
+          for MODULE in "${OLD_DOCKER_MODULES[@]}"; do
+            build_old_docker $MODULE
+          done
+
+          # Set up Buildx for multi-arch Spring Boot modules
+          docker buildx create --use --name multiarch-builder || true
+          docker buildx inspect --bootstrap
+
+          # Build Spring Boot modules
+          for MODULE in "${SPRING_BOOT_MODULES[@]}"; do
+            build_spring_boot $MODULE
+          done
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -55,57 +95,39 @@ jobs:
           username: ${{ secrets.docker_username }}
           password: ${{ secrets.docker_token }}
 
-      - name: Build and Push All Docker Images (multi-arch Spring Boot)
+      - name: Push All Docker Images
         run: |
           export DOCKER_REPO=${{ secrets.docker_username }}
-          export VERSION=${GITHUB_REF#refs/tags/}  # GitHub release tag
-          echo "Using version: $VERSION"
+          export VERSION=${GITHUB_REF#refs/tags/}
+          
+          OLD_DOCKER_MODULES=("agent-module/agent" "flink" "hbase/hbase-docker")
+          SPRING_BOOT_MODULES=("collector-starter" "web-starter" "batch" "collector" "web")
 
-          # ----------------------------
-          # Old-style Docker builds
-          # ----------------------------
-          echo "Building agent-module/agent..."
-          mvn docker:build -pl agent-module/agent
-          docker tag $DOCKER_REPO/pinpoint-agent:latest $DOCKER_REPO/pinpoint-agent:$VERSION
-          docker push $DOCKER_REPO/pinpoint-agent:latest
-          docker push $DOCKER_REPO/pinpoint-agent:$VERSION
+          push_old_docker() {
+            MODULE_PATH=$1
+            MODULE_NAME=$(basename $MODULE_PATH)
+            echo "Pushing old Docker module $MODULE_PATH ..."
+            docker tag $DOCKER_REPO/pinpoint-$MODULE_NAME:latest $DOCKER_REPO/pinpoint-$MODULE_NAME:$VERSION
+            docker push $DOCKER_REPO/pinpoint-$MODULE_NAME:latest
+            docker push $DOCKER_REPO/pinpoint-$MODULE_NAME:$VERSION
+          }
 
-          echo "Building flink..."
-          mvn docker:build -pl flink
-          docker tag $DOCKER_REPO/pinpoint-flink:latest $DOCKER_REPO/pinpoint-flink:$VERSION
-          docker push $DOCKER_REPO/pinpoint-flink:latest
-          docker push $DOCKER_REPO/pinpoint-flink:$VERSION
+          push_spring_boot() {
+            MODULE=$1
+            echo "Pushing Spring Boot module $MODULE ..."
+            docker push $DOCKER_REPO/pinpoint-$MODULE:$VERSION-metric
+            docker tag $DOCKER_REPO/pinpoint-$MODULE:$VERSION-metric \
+                       $DOCKER_REPO/pinpoint-$MODULE:latest-metric
+            docker push $DOCKER_REPO/pinpoint-$MODULE:latest-metric
+          }
 
-          echo "Building hbase/hbase-docker..."
-          mvn docker:build -pl hbase/hbase-docker
-          docker tag $DOCKER_REPO/pinpoint-hbase:latest $DOCKER_REPO/pinpoint-hbase:$VERSION
-          docker push $DOCKER_REPO/pinpoint-hbase:latest
-          docker push $DOCKER_REPO/pinpoint-hbase:$VERSION
+          # Push old Docker modules
+          for MODULE in "${OLD_DOCKER_MODULES[@]}"; do
+            push_old_docker $MODULE
+          done
 
-          # ----------------------------
-          # Spring Boot modules (multi-arch using Buildx)
-          # ----------------------------
-          MODULES=("collector-starter" "web-starter" "batch" "collector" "web")
-
-          # Set up Buildx builder
-          docker buildx create --use --name multiarch-builder || true
-          docker buildx inspect --bootstrap
-
-          for MODULE in "${MODULES[@]}"; do
-            echo "Building Spring Boot module $MODULE (multi-arch)..."
-
-            # Build and push multi-arch image
-            mvn -pl $MODULE spring-boot:build-image \
-              -DskipTests=true \
-              -Dspring-boot.build-image.publish=true \
-              -Dspring-boot.build-image.builder=docker \
-              -Dspring-boot.build-image.platform=linux/amd64,linux/arm64 \
-              -Dspring-boot.build-image.imageName=$DOCKER_REPO/pinpoint-$MODULE:$VERSION-metric
-
-            # Tag same image as latest-metric
-            docker pull ${{ secrets.docker_username }}/pinpoint-$MODULE:$VERSION-metric
-            docker tag ${{ secrets.docker_username }}/pinpoint-$MODULE:$VERSION-metric \
-                       ${{ secrets.docker_username }}/pinpoint-$MODULE:latest-metric
-            docker push ${{ secrets.docker_username }}/pinpoint-$MODULE:latest-metric
+          # Push Spring Boot modules
+          for MODULE in "${SPRING_BOOT_MODULES[@]}"; do
+            push_spring_boot $MODULE
           done
 
