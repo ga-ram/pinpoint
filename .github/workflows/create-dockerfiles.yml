@@ -2,6 +2,12 @@ name: Create and push dockerfiles
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to use for Docker images (e.g. v3.0.0)'
+        required: true
+        type: string
+
   release:
     types: [released]
     
@@ -46,16 +52,24 @@ jobs:
           echo "JAVA_17_HOME=$JAVA_HOME_17_X64" >> $GITHUB_ENV
           echo "JAVA_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
 
-      - name: Build Project
-        run: mvn install -DskipTests=true
-        
+      - name: Determine Version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "Using version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
       - name: Build All Docker Images
         run: |
           export DOCKER_REPO=${{ secrets.docker_username }}
           export VERSION=${GITHUB_REF#refs/tags/}  # GitHub release tag
           echo "Using version: $VERSION"
 
-          OLD_DOCKER_MODULES=("agent-module/agent" "flink" "hbase/hbase-docker")
+          # OLD_DOCKER_MODULES=("agent-module/agent" "flink" "hbase/hbase-docker")
           SPRING_BOOT_MODULES=("collector-starter" "web-starter" "batch" "collector" "web")
 
           build_old_docker() {
@@ -67,15 +81,13 @@ jobs:
           build_spring_boot() {
             MODULE=$1
             echo "Building Spring Boot module $MODULE (multi-arch)..."
-            mvn -pl $MODULE clean package spring-boot:build-image \ 
-              -DskipTests=true \
-              -Dspring-boot.build-image.platform=linux/amd64,linux/arm64
+            mvn -pl $MODULE clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64,linux/arm64
           }
 
           # Build old Docker modules
-          for MODULE in "${OLD_DOCKER_MODULES[@]}"; do
-            build_old_docker $MODULE
-          done
+          #for MODULE in "${OLD_DOCKER_MODULES[@]}"; do
+          #  build_old_docker $MODULE
+          #done
 
           # Set up Buildx for multi-arch Spring Boot builds
           docker buildx create --use --name multiarch-builder || true
@@ -86,46 +98,51 @@ jobs:
             build_spring_boot $MODULE
           done
 
-
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.docker_username }}
           password: ${{ secrets.docker_token }}
-
+          
       - name: Push All Docker Images
         run: |
           export DOCKER_REPO=${{ secrets.docker_username }}
-          export VERSION=${GITHUB_REF#refs/tags/}
-          
-          OLD_DOCKER_MODULES=("agent-module/agent" "flink" "hbase/hbase-docker")
-          SPRING_BOOT_MODULES=("collector-starter" "web-starter" "batch" "collector" "web")
+          export VERSION=${{ steps.version.outputs.version }}
+          echo "Pushing Docker images for version: $VERSION"
 
-          push_old_docker() {
-            MODULE_PATH=$1
-            MODULE_NAME=$(basename $MODULE_PATH)
-            echo "Pushing old Docker module $MODULE_PATH ..."
-            docker tag $DOCKER_REPO/pinpoint-$MODULE_NAME:latest $DOCKER_REPO/pinpoint-$MODULE_NAME:$VERSION
-            docker push $DOCKER_REPO/pinpoint-$MODULE_NAME:latest
-            docker push $DOCKER_REPO/pinpoint-$MODULE_NAME:$VERSION
-          }
+          # --- Old Docker modules ---
+          docker tag $DOCKER_REPO/pinpoint-agent:latest $DOCKER_REPO/pinpoint-agent:$VERSION
+          docker push $DOCKER_REPO/pinpoint-agent:latest
+          docker push $DOCKER_REPO/pinpoint-agent:$VERSION
 
-          push_spring_boot() {
-            MODULE=$1
-            echo "Pushing Spring Boot module $MODULE ..."
-            docker push $DOCKER_REPO/pinpoint-$MODULE:$VERSION-metric
-            docker tag $DOCKER_REPO/pinpoint-$MODULE:$VERSION-metric \
-                       $DOCKER_REPO/pinpoint-$MODULE:latest-metric
-            docker push $DOCKER_REPO/pinpoint-$MODULE:latest-metric
-          }
+          docker tag $DOCKER_REPO/pinpoint-flink:latest $DOCKER_REPO/pinpoint-flink:$VERSION
+          docker push $DOCKER_REPO/pinpoint-flink:latest
+          docker push $DOCKER_REPO/pinpoint-flink:$VERSION
 
-          # Push old Docker modules
-          for MODULE in "${OLD_DOCKER_MODULES[@]}"; do
-            push_old_docker $MODULE
-          done
+          docker tag $DOCKER_REPO/pinpoint-hbase-docker:latest $DOCKER_REPO/pinpoint-hbase-docker:$VERSION
+          docker push $DOCKER_REPO/pinpoint-hbase-docker:latest
+          docker push $DOCKER_REPO/pinpoint-hbase-docker:$VERSION
 
-          # Push Spring Boot modules
-          for MODULE in "${SPRING_BOOT_MODULES[@]}"; do
-            push_spring_boot $MODULE
-          done
+
+          # --- Spring Boot modules (metric images) ---
+          docker tag $DOCKER_REPO/pinpoint-collector-starter:$VERSION-metric $DOCKER_REPO/pinpoint-collector-starter:latest-metric
+          docker push $DOCKER_REPO/pinpoint-collector-starter:$VERSION-metric
+          docker push $DOCKER_REPO/pinpoint-collector-starter:latest-metric
+
+          docker tag $DOCKER_REPO/pinpoint-web-starter:$VERSION-metric $DOCKER_REPO/pinpoint-web-starter:latest-metric
+          docker push $DOCKER_REPO/pinpoint-web-starter:$VERSION-metric
+          docker push $DOCKER_REPO/pinpoint-web-starter:latest-metric
+
+          docker tag $DOCKER_REPO/pinpoint-batch:$VERSION-metric $DOCKER_REPO/pinpoint-batch:latest-metric
+          docker push $DOCKER_REPO/pinpoint-batch:$VERSION-metric
+          docker push $DOCKER_REPO/pinpoint-batch:latest-metric
+
+          docker tag $DOCKER_REPO/pinpoint-collector:$VERSION-metric $DOCKER_REPO/pinpoint-collector:latest-metric
+          docker push $DOCKER_REPO/pinpoint-collector:$VERSION-metric
+          docker push $DOCKER_REPO/pinpoint-collector:latest-metric
+
+          docker tag $DOCKER_REPO/pinpoint-web:$VERSION-metric $DOCKER_REPO/pinpoint-web:latest-metric
+          docker push $DOCKER_REPO/pinpoint-web:$VERSION-metric
+          docker push $DOCKER_REPO/pinpoint-web:latest-metric
+
 
