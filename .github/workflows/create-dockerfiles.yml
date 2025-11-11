@@ -69,10 +69,7 @@ jobs:
             echo "Building Spring Boot module $MODULE (multi-arch)..."
             mvn -pl $MODULE spring-boot:build-image \
               -DskipTests=true \
-              -Dspring-boot.build-image.publish=false \
-              -Dspring-boot.build-image.builder=docker \
-              -Dspring-boot.build-image.platform=linux/amd64,linux/arm64 \
-              -Dspring-boot.build-image.imageName=$DOCKER_REPO/pinpoint-$MODULE:$VERSION-metric
+              -Dspring-boot.build-image.platform=linux/amd64,linux/arm64
           }
 
           # Build old Docker modules
