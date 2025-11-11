@@ -52,7 +52,7 @@ jobs:
       - name: Build All Docker Images
         run: |
           export DOCKER_REPO=${{ secrets.docker_username }}
-          export VERSION=${GITHUB_REF#refs/tags/}
+          export VERSION=${GITHUB_REF#refs/tags/}  # GitHub release tag
           echo "Using version: $VERSION"
 
           OLD_DOCKER_MODULES=("agent-module/agent" "flink" "hbase/hbase-docker")
@@ -60,16 +60,16 @@ jobs:
 
           build_old_docker() {
             MODULE_PATH=$1
-            MODULE_NAME=$(basename $MODULE_PATH)
             echo "Building old Docker module $MODULE_PATH ..."
-            mvn docker:build -pl $MODULE_PATH
+            mvn docker:build -pl $MODULE_PATH -DskipTests=true
           }
 
           build_spring_boot() {
             MODULE=$1
-            echo "Building Spring Boot module $MODULE ..."
+            echo "Building Spring Boot module $MODULE (multi-arch)..."
             mvn -pl $MODULE spring-boot:build-image \
               -DskipTests=true \
+              -Dspring-boot.build-image.publish=false \
               -Dspring-boot.build-image.builder=docker \
               -Dspring-boot.build-image.platform=linux/amd64,linux/arm64 \
               -Dspring-boot.build-image.imageName=$DOCKER_REPO/pinpoint-$MODULE:$VERSION-metric
@@ -80,7 +80,7 @@ jobs:
             build_old_docker $MODULE
           done
 
-          # Set up Buildx for multi-arch Spring Boot modules
+          # Set up Buildx for multi-arch Spring Boot builds
           docker buildx create --use --name multiarch-builder || true
           docker buildx inspect --bootstrap
 
@@ -88,6 +88,7 @@ jobs:
           for MODULE in "${SPRING_BOOT_MODULES[@]}"; do
             build_spring_boot $MODULE
           done
+
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
