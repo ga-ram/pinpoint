@@ -48,24 +48,61 @@ jobs:
 
       - name: Build Project
         run: mvn install -DskipTests=true
-        
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-             
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        
-      - name: Build Docker Images
+
+      - name: Build and Push All Docker Images (multi-arch Spring Boot)
         run: |
+          export DOCKER_REPO=${{ secrets.docker_username }}
+          export VERSION=${GITHUB_REF#refs/tags/}  # GitHub release tag
+          echo "Using version: $VERSION"
+
+          # ----------------------------
+          # Old-style Docker builds
+          # ----------------------------
+          echo "Building agent-module/agent..."
           mvn docker:build -pl agent-module/agent
+          docker tag $DOCKER_REPO/pinpoint-agent:latest $DOCKER_REPO/pinpoint-agent:$VERSION
+          docker push $DOCKER_REPO/pinpoint-agent:latest
+          docker push $DOCKER_REPO/pinpoint-agent:$VERSION
+
+          echo "Building flink..."
           mvn docker:build -pl flink
+          docker tag $DOCKER_REPO/pinpoint-flink:latest $DOCKER_REPO/pinpoint-flink:$VERSION
+          docker push $DOCKER_REPO/pinpoint-flink:latest
+          docker push $DOCKER_REPO/pinpoint-flink:$VERSION
+
+          echo "Building hbase/hbase-docker..."
           mvn docker:build -pl hbase/hbase-docker
-          mvn verify spring-boot:build-image -DskipTests=true -pl collector-starter
-          mvn verify spring-boot:build-image -DskipTests=true -pl web-starter
-          mvn verify spring-boot:build-image -DskipTests=true -pl batch
-          mvn verify spring-boot:build-image -DskipTests=true -pl collector
-          mvn verify spring-boot:build-image -DskipTests=true -pl web
-          docker images
+          docker tag $DOCKER_REPO/pinpoint-hbase:latest $DOCKER_REPO/pinpoint-hbase:$VERSION
+          docker push $DOCKER_REPO/pinpoint-hbase:latest
+          docker push $DOCKER_REPO/pinpoint-hbase:$VERSION
+
+          # ----------------------------
+          # Spring Boot modules (multi-arch using Buildx)
+          # ----------------------------
+          MODULES=("collector-starter" "web-starter" "batch" "collector" "web")
+
+          # Set up Buildx builder
+          docker buildx create --use --name multiarch-builder || true
+          docker buildx inspect --bootstrap
+
+          for MODULE in "${MODULES[@]}"; do
+            echo "Building Spring Boot module $MODULE (multi-arch)..."
+
+            # Build and push multi-arch image
+            mvn -pl $MODULE spring-boot:build-image \
+              -DskipTests=true \
+              -Dspring-boot.build-image.publish=true \
+              -Dspring-boot.build-image.builder=docker \
+              -Dspring-boot.build-image.platform=linux/amd64,linux/arm64 \
+              -Dspring-boot.build-image.imageName=$DOCKER_REPO/pinpoint-$MODULE:$VERSION-metric
+
+            # Tag same image as latest-metric
+            docker pull $DOCKER_REPO/pinpoint-$MODULE:$VERSION-metric
+            docker tag $DOCKER_REPO/pinpoint-$MODULE:$VERSION-metric \
+                       $DOCKER_REPO/pinpoint-$MODULE:latest-metric
+            docker push $DOCKER_REPO/pinpoint-$MODULE:latest-metric
+          done
+
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
