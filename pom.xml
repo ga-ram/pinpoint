@@ -144,7 +144,7 @@
         <maven.source.skip>true</maven.source.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
 
-        <docker.repository.name>pinpointdocker</docker.repository.name>
+        <docker.repository.name>galam</docker.repository.name>
 
         <!-- java back-end development option -->
         <build.frontend.skip>false</build.frontend.skip>
