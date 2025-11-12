@@ -95,21 +95,28 @@ jobs:
           username: ${{ secrets.docker_username }}
           password: ${{ secrets.docker_token }}
 
-      - name: Build Docker Images
+      - name: Build And Push Collector Images
         run: |
           # Set up Buildx for multi-arch Spring Boot builds
           docker buildx create --use --name multiarch-builder || true
           docker buildx inspect --bootstrap
           mvn -pl collector clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64,linux/arm64
           mvn -pl collector-starter clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64,linux/arm64
+          docker images
+          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-collector
+
+      - name: Build And Push Web Images
+        run: |
+          docker system prune -af
           mvn -pl web clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64,linux/arm64
           mvn -pl web-starter clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64,linux/arm64
+          docker images
+          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-web
+          
+      - name: Build And Push Batch Image
+        run: |
+          docker system prune -af
           mvn -pl batch clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64,linux/arm64
           docker images
-
-      - name: Push to Docker Hub
-        run: |
           docker push --all-tags ${{ secrets.docker_username }}/pinpoint-batch
-          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-collector
-          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-web
 
