@@ -6,7 +6,7 @@ on:
     types: [released]
 
 jobs:
-  update latest tag:
+  update-latest-tag:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
