@@ -6,7 +6,7 @@ on:
     types: [released]
 
 jobs:
-  update-latest-tag:
+  update latest tag:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -38,10 +38,12 @@ jobs:
 
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
-          
   build-and-push-dockerfile-images:
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Set JAVA_HOME
         run: |
           echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
@@ -74,6 +76,9 @@ jobs:
   build-and-push-spring-boot-docker-images:
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Set JAVA_HOME
         run: |
           echo "JAVA_8_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
