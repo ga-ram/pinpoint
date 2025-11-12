@@ -57,25 +57,25 @@ jobs:
 
       - name: Build Docker Images
         run: |
-          mvn docker:build -pl agent-module/agent
-          mvn docker:build -pl flink
-          mvn docker:build -pl hbase/hbase-docker
+          #mvn docker:build -pl agent-module/agent
+          #mvn docker:build -pl flink
+          #mvn docker:build -pl hbase/hbase-docker
           # Set up Buildx for multi-arch Spring Boot builds
           docker buildx create --use --name multiarch-builder || true
           docker buildx inspect --bootstrap
-          mvn -pl collector-starter clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64,linux/arm64
-          mvn -pl web-starter clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64,linux/arm64
-          mvn -pl batch clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64,linux/arm64
-          mvn -pl collector clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64,linux/arm64
-          mvn -pl web clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64,linux/arm64
+          mvn -pl collector-starter clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64
+          #mvn -pl web-starter clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64
+          #mvn -pl batch clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64
+          mvn -pl collector clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64
+          #mvn -pl web clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64
           docker images
           
       - name: Push to Docker Hub
         run: |
-          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-agent
-          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-flink
-          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-hbase
-          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-batch
+          #docker push --all-tags ${{ secrets.docker_username }}/pinpoint-agent
+          #docker push --all-tags ${{ secrets.docker_username }}/pinpoint-flink
+          #docker push --all-tags ${{ secrets.docker_username }}/pinpoint-hbase
+          #docker push --all-tags ${{ secrets.docker_username }}/pinpoint-batch
           docker push --all-tags ${{ secrets.docker_username }}/pinpoint-collector
-          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-web
+          #docker push --all-tags ${{ secrets.docker_username }}/pinpoint-web
           
