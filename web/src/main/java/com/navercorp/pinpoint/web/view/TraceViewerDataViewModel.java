@@ -133,25 +133,15 @@ public class TraceViewerDataViewModel {
 
     private void addToInvisibleRecords(Record record) {
         int nonZeroAncestorId = findAncestorId(record.getParentId());
-        int parentId = getParentId(record, nonZeroAncestorId);
-        invisibleRecords.put(record.getId(), parentId);
-    }
-
-    private int getParentId(Record record, int nonZeroAncestorId) {
-        if (nonZeroAncestorId == ID_NOT_EXIST) {
-            return record.getParentId();
-        }
-        return nonZeroAncestorId;
+        invisibleRecords.put(record.getId(), nonZeroAncestorId);
     }
 
     private int findAncestorId(int parentId) {
-        int nonZeroAncestorId;
-        do {
-            nonZeroAncestorId = invisibleRecords.getIfAbsent(parentId, ID_NOT_EXIST);
-            if (nonZeroAncestorId == ID_NOT_EXIST) {
-                break;
-            }
-        } while (invisibleRecords.getIfAbsent(nonZeroAncestorId, ID_NOT_EXIST) != ID_NOT_EXIST);
+        int nonZeroAncestorId = parentId;
+        int check;
+        while ((check = invisibleRecords.getIfAbsent(nonZeroAncestorId, ID_NOT_EXIST)) != ID_NOT_EXIST) {
+            nonZeroAncestorId = check;
+        }
         return nonZeroAncestorId;
     }
 
@@ -259,7 +249,10 @@ public class TraceViewerDataViewModel {
 
     private int getParentId(Record record) {
         int searchingFor = invisibleRecords.getIfAbsent(record.getParentId(), ID_NOT_EXIST);
-        return getParentId(record, searchingFor);
+        if (searchingFor == ID_NOT_EXIST) {
+            return record.getParentId();
+        }
+        return searchingFor;
     }
 
     public enum RecordType {
